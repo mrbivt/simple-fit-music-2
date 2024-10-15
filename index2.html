@@ -1,0 +1,735 @@
+
+<html>
+<head>
+<link rel='stylesheet' href='https://use.fontawesome.com/releases/v5.3.1/css/all.css'><link rel="stylesheet" href="./style.css">
+
+    <style>
+      
+
+      *:focus
+{
+    outline: none;
+}
+   <style>
+      
+body > iframe:first-child { display: none !important; }
+
+body
+{
+    font-family: Monospace;
+    margin: 0;
+    background-color: rgba(255,255,255,0);
+}
+
+#app-cover
+{
+    position: absolute;
+    top: 55%;
+    right: 10;
+    left: 0;
+    width: 400px;
+    height: 100px;
+    margin: -4px auto;
+}
+
+#bg-artwork
+{
+    position: fixed;
+    top: -30px;
+    right: -30px;
+    bottom: -30px;
+    left: -30px;
+    background-color: #191919;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: 50%;
+    filter: blur(40px);
+    -webkit-filter: blur(40px);
+    z-index: 1;
+}
+
+#bg-layer
+{
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: #191919;
+    opacity: 100;
+    z-index: 0;
+}
+
+#player
+{
+    position: relative;
+    height: 100%;
+    z-index: 3;
+}
+
+#player-track
+{
+    position: absolute;
+    top: 0;
+    right: 15px;
+    left: 15px;
+    padding: 13px 22px 10px 184px;
+    background-color: #191919; /*change header color here*/
+    box-shadow: 0 1px 5px #cecece;
+    border-radius: 18px 18px 0 0;
+    transition: 0.3s ease top;
+    z-index: 1;
+}
+
+#player-track.active
+{
+    top: -92px;
+}
+
+#artist-name
+{
+      color: #b8d5ff; /*change artist name text color here*/
+    font-size: 13px;
+    margin: 2px 0 13px 0;
+    
+}
+
+#track-name
+{
+    color: #FFF; /*change song name text color here*/
+    font-size: 14px;
+    font-weight: bold;
+}
+
+#track-time
+{
+    height: 12px;
+    margin-bottom: 3px;
+    overflow: hidden;
+}
+
+#current-time
+{
+    float: left;
+}
+
+#track-length
+{
+    float: right;
+}
+
+#current-time, #track-length
+{
+    color: transparent;
+    font-size: 11px;
+    background-color: rgba(255,255,255,0);
+    border-radius: 10px;
+    transition: 0.3s ease all;
+}
+
+#track-time.active #current-time, #track-time.active #track-length
+{
+    color: #fff; /*change song time color here*/
+    background-color: transparent;
+}
+
+#s-area, #seek-bar
+{
+    position: relative;
+    height: 4px;
+    border-radius: 4px;
+}
+
+#s-area
+{
+    background-color:#fff; /*change song bar color here*/
+    cursor: pointer;
+}
+
+#ins-time
+{
+    position: absolute;
+    top: -29px;
+    color: #fff; /*change song time color here*/
+    font-size: 12px;
+    white-space: pre;
+    padding: 5px 6px;
+    border-radius: 4px;
+        display:none;
+}
+
+#s-hover
+{
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    opacity: 0.2;
+    z-index: 2;
+}
+
+#ins-time, #s-hover
+{
+    background-color: #3b3d50; 
+}
+
+#seek-bar
+{
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    background-color: #b8d5ff; /*change song running bar color here*/
+    transition: 0.2s ease width;
+    z-index: 1;
+}
+
+#player-content
+{
+    position: relative;
+    height: 100%;
+    background-color: #191919; /*change player body color here*/
+    box-shadow: 0 1px 5px #cecece;
+    border-radius: 15px;
+    z-index: 2;
+}
+
+#album-art
+{
+    position: absolute;
+    top: -40px;
+    width: 115px;
+    height: 115px;
+    margin-left: 20px;
+    transform: rotateZ(0);
+    transition: 0.3s ease all;
+    box-shadow: 0 0 0 10px #fff;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+#album-art.active
+{
+    top: -60px;
+    box-shadow: 0 0 0 4px #fff7f7, 0 30px 50px -15px #afb7c1;
+}
+
+#album-art:before
+{
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 0;
+    left: 0;
+    width: 20px;
+    height: 20px;
+    margin: -10px auto 0 auto;
+    background-color: #d6dee7;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 2px #fff;
+    z-index: 2;
+}
+
+#album-art img
+{
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    z-index: -1;
+}
+
+#album-art img.active
+{
+    opacity: 1;
+    z-index: 1;
+}
+
+#album-art.active img.active
+{
+    z-index: 1;
+    animation: rotateAlbumArt 3s linear 0s infinite forwards;
+}
+
+@keyframes rotateAlbumArt
+{
+    0%{ transform: rotateZ(0); }
+    100%{ transform: rotateZ(360deg); }
+}
+
+#buffer-box
+{
+    position: absolute;
+    top: 50%;
+    right: 0;
+    left: 0;
+    height: 13px;
+    color: #1f1f1f;
+    font-size: 13px;
+    font-family: Helvetica;
+    text-align: center;
+    font-weight: bold;
+    line-height: 1;
+    padding: 6px;
+    margin: -12px auto 0 auto;
+    background-color: rgba(255, 255, 255, 0.19);
+    opacity: 0;
+    z-index: 2;
+}
+
+#album-art img, #buffer-box
+{
+    transition: 0.1s linear all;
+}
+
+#album-art.buffering img
+{
+    opacity: 0.25;
+}
+
+#album-art.buffering img.active
+{
+    opacity: 0.8;
+    filter: blur(2px);
+    -webkit-filter: blur(2px);
+}
+
+#album-art.buffering #buffer-box
+{
+    opacity: 1;
+}
+
+#player-controls
+{
+    width: 250px;
+    height: 100%;
+    margin: 0 5px 0 141px;
+    float: right;
+    overflow: hidden;
+}
+
+.control
+{
+    width: 23.333%;
+    float: left;
+    padding: 22px 0;
+}
+
+.button
+{
+    width: 16px;
+    height: 16px;
+    padding: 13px;
+    background-color: #fff;
+    border-radius: 6px;
+    cursor: pointer;
+     border: 1px solid #ccc;     /* Thêm viền màu xám nhạt */
+    transition: background-color 0.3s ease; /* Hiệu ứng mượt khi thay đổi màu nền */
+     margin-left: 30px;   
+      margin-top: -10px; 
+}
+
+.button i
+{
+    display: block;
+    color: darkblue; /*change play button color here*/
+    font-size: 18px;
+    text-align: center;
+    line-height: 1;
+        border-radius: 18px;
+       
+    transition: background-color 0.3s ease; /* Hiệu ứng mượt khi thay đổi màu nền */
+}
+
+.button, .button i
+{
+    transition: 0.2s ease all;
+        border-radius: 18px;
+
+}
+
+.button:hover
+{
+    background-color: #000000; /*change button hover color here*/
+    border-radius: 18px;
+}
+
+.button:hover i
+{
+    color: #fff;
+        border-radius: 18px;
+
+}
+
+#music-title {
+   font-family: monospace; /* Hoặc thay bằng 'Lobster' hoặc font khác */
+    color: #FFF; /* Màu chữ */
+    font-size: 16px; /* Kích thước chữ */
+    text-align: center; /* Căn giữa */
+    margin-top: 25px; /* Khoảng cách phía trên */
+    margin-left: -150px;
+    font-weight: bold; /* Đậm */
+    letter-spacing: 2px; /* Khoảng cách giữa các ký tự */
+    white-space: nowrap; /* Ngăn không cho ngắt dòng */
+}
+
+
+
+
+
+#ytd-url {
+  display: block;
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  padding: 10px 14px;
+  margin: 20px;
+  color: #fff;
+  font-size: 14px;
+  text-decoration: none;
+  background-color: #ae5f87;
+  border-radius: 4px;
+  box-shadow: 0 10px 20px -5px rgba(174, 95, 135, 0.86);
+  z-index: 125;
+}
+      
+    </style>
+</head>
+<body>
+
+    <div id="app-cover">
+  
+        <div id="bg-artwork"></div>
+        <div id="bg-layer"></div>
+        <div id="player">
+            <div id="player-track">
+                     <div id="track-name"></div>
+                    <div id="artist-name"></div>
+                <div id="track-time">
+                    <div id="current-time"></div>
+                    <div id="track-length"></div>
+                </div>
+                <div id="s-area">
+                    <div id="ins-time"></div>
+                    <div id="s-hover"></div>
+                    <div id="seek-bar"></div>
+                </div>
+            </div>
+            <div id="player-content">
+                <div id="album-art">
+                   <img src="https://raw.githubusercontent.com/mrbivt/simple-fit-music-2/refs/heads/main/1.jpg" class="active" id="_1">
+                    <img src="https://raw.githubusercontent.com/mrbivt/simple-fit-music-2/refs/heads/main/2.jpg" id="_2">
+                    <img src="https://raw.githubusercontent.com/mrbivt/simple-fit-music-2/refs/heads/main/3.jpg" id="_3">
+                    <img src="https://raw.githubusercontent.com/mrbivt/simple-fit-music-2/refs/heads/main/4.jpg" id="_4">
+                    <img src="https://raw.githubusercontent.com/mrbivt/simple-fit-music-2/refs/heads/main/5.jpgg" id="_5">
+                     <img src="https://raw.githubusercontent.com/mrbivt/simple-fit-music-2/refs/heads/main/6.jpg" id="_6">
+    <img src="https://raw.githubusercontent.com/mrbivt/simple-fit-music-2/refs/heads/main/7.jpg" id="_7">
+    <img src="https://raw.githubusercontent.com/mrbivt/simple-fit-music-2/refs/heads/main/8.jpg" id="_8">
+    <img src="https://raw.githubusercontent.com/mrbivt/simple-fit-music-2/refs/heads/main/9.jpg" id="_9">
+    <img src="https://raw.githubusercontent.com/mrbivt/simple-fit-music-2/refs/heads/main/10.jpg" id="_10">
+    <img src="https://raw.githubusercontent.com/mrbivt/simple-fit-music-2/refs/heads/main/11.jpg" id="_11">
+    <img src="https://raw.githubusercontent.com/mrbivt/simple-fit-music-2/refs/heads/main/12.jpg" id="_12">
+    <img src="https://raw.githubusercontent.com/mrbivt/simple-fit-music-2/refs/heads/main/13.jpg" id="_13">
+    <img src="https://raw.githubusercontent.com/mrbivt/simple-fit-music-2/refs/heads/main/14.jpg" id="_14">
+    <img src="https://raw.githubusercontent.com/mrbivt/simple-fit-music-2/refs/heads/main/15.jpg" id="_15">
+    <img src="https://raw.githubusercontent.com/mrbivt/simple-fit-music-2/refs/heads/main/16.jpg" id="_16">
+    <img src="https://raw.githubusercontent.com/mrbivt/simple-fit-music-2/refs/heads/main/17.jpg" id="_17">
+    <img src="https://raw.githubusercontent.com/mrbivt/simple-fit-music-2/refs/heads/main/18.jpg" id="_18">
+    <img src="https://raw.githubusercontent.com/mrbivt/simple-fit-music-2/refs/heads/main/19.jpg" id="_19">
+    <img src="https://raw.githubusercontent.com/mrbivt/simple-fit-music-2/refs/heads/main/20.jpg" id="_20">
+                 
+                    <div id="buffer-box">Buffering ...</div>
+                </div>
+                <div id="player-controls">
+                    <div class="control">
+                        <div class="button" id="play-previous">
+                            <i class="fas fa-backward"></i>
+                        </div>
+                    </div>
+                    <div class="control">
+                        <div class="button" id="play-pause-button">
+                            <i class="fas fa-play"></i>
+                        </div>
+                    </div>
+                    <div class="control">
+                        <div class="button" id="play-next">
+                            <i class="fas fa-forward"></i>
+                     <div id="music-title">Simple Fit Music #2</div>         
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+  
+  <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+  <script type="text/javascript">
+    $(function()
+{
+var playerTrack = $("#player-track"), bgArtwork = $('#bg-artwork'), bgArtworkUrl, artistName = $('#artist-name'), trackName = $('#track-name'), albumArt = $('#album-art'), sArea = $('#s-area'), seekBar = $('#seek-bar'), trackTime = $('#track-time'), insTime = $('#ins-time'), sHover = $('#s-hover'), playPauseButton = $("#play-pause-button"),  i = playPauseButton.find('i'), tProgress = $('#current-time'), tTime = $('#track-length'), seekT, seekLoc, seekBarPos, cM, ctMinutes, ctSeconds, curMinutes, curSeconds, durMinutes, durSeconds, playProgress, bTime, nTime = 0, buffInterval = null, tFlag = false, 
+
+       
+trackNames = ['Chỉ Còn Một Đêm Cuối ', 'Talk To Me (Co Nen Dung Lai?)', 'Xin loi anh qua phien', 'Em Kể Anh Nghe', 'Là Anh', 'Nơi Chỉ Còn Ta', 'Xin Hay Thu Tha (Feat. Suboi)', 'Forget About Her', 'Đau Vậy Đủ Rồi (feat. Vũ Phụng Tiên)', 'Mời Người Kế Tiếp', 'Tất Cả Tại Anh', 'Waiting For You', 'OK Anh Đúng (Chapter 2)', 'Phi Hành Gia', 'Anh Thích Em Như Vậy', 'Bật Tình Yêu Lên', 'Cắt Đôi Nỗi Sầu', 'Thủ Đô Cypher', 'HOP ON DA SHOW', 'Biển']
+
+artists = ['Bác Sĩ Hải', 'Chi Pu', 'Dong Nhi', 'bac si Hai', 'Exclusive Music/Phạm Lịch', 'Haohinh, Judian', 'Ho Ngoc Ha', 'Justatee/ TOULIVER', 'Karik/Vũ Phụng Tiên', 'Karik/ Only C', 'Karik, Emma Nhất Khanh', 'MONO/ Onionn.', 'Orange/HIEUTHUHAI', 'Renjā/Slow T/Lil Wuyn/Sugar Cane/Kaïn', 'Song Luan', 'Tăng Duy Tân/ Hoa Minzy', 'Tăng Duy Tân', 'Low G', 'tlinh, Low G', 'Yanbi, T-Akayz'],
+		
+        albumArtworks = ['_1', '_2', '_3', '_4', '_5', '_6', '_7', '_8', '_9', '_10', '_11', '_12', '_13', '_14', '_15', '_16', '_17', '_18', '_19', '_20'], 
+        trackUrl = ['https://raw.githubusercontent.com/mrbivt/simple-fit-music-2/refs/heads/main/1.mp3',
+                    'https://raw.githubusercontent.com/mrbivt/simple-fit-music-2/refs/heads/main/2.mp3',
+                    'https://raw.githubusercontent.com/mrbivt/simple-fit-music-2/refs/heads/main/3.mp3',
+                    'https://raw.githubusercontent.com/mrbivt/simple-fit-music-2/refs/heads/main/4.mp3',
+                    'https://raw.githubusercontent.com/mrbivt/simple-fit-music-2/refs/heads/main/5.mp3',
+                    'https://raw.githubusercontent.com/mrbivt/simple-fit-music-2/refs/heads/main/6.mp3',
+    'https://raw.githubusercontent.com/mrbivt/simple-fit-music-2/refs/heads/main/7.mp3',
+    'https://raw.githubusercontent.com/mrbivt/simple-fit-music-2/refs/heads/main/8.mp3',
+    'https://raw.githubusercontent.com/mrbivt/simple-fit-music-2/refs/heads/main/9.mp3',
+    'https://raw.githubusercontent.com/mrbivt/simple-fit-music-2/refs/heads/main/10.mp3',
+    'https://raw.githubusercontent.com/mrbivt/simple-fit-music-2/refs/heads/main/11.mp3',
+    'https://raw.githubusercontent.com/mrbivt/simple-fit-music-2/refs/heads/main/12.mp3',
+    'https://raw.githubusercontent.com/mrbivt/simple-fit-music-2/refs/heads/main/13.mp3',
+    'https://raw.githubusercontent.com/mrbivt/simple-fit-music-2/refs/heads/main/14.mp3',
+    'https://raw.githubusercontent.com/mrbivt/simple-fit-music-2/refs/heads/main/15.mp3',
+    'https://raw.githubusercontent.com/mrbivt/simple-fit-music-2/refs/heads/main/16.mp3',
+    'https://raw.githubusercontent.com/mrbivt/simple-fit-music-2/refs/heads/main/17.mp3',
+    'https://raw.githubusercontent.com/mrbivt/simple-fit-music-2/refs/heads/main/18.mp3',
+    'https://raw.githubusercontent.com/mrbivt/simple-fit-music-2/refs/heads/main/19.mp3',
+    'https://raw.githubusercontent.com/mrbivt/simple-fit-music-2/refs/heads/main/20.mp3'], 
+        playPreviousTrackButton = $('#play-previous'), playNextTrackButton = $('#play-next'), currIndex = -1;
+    function playPause() {
+                if (audio.paused) {
+                    audio.play();
+                    playerTrack.addClass('active');
+                    albumArt.addClass('active');
+                    playPauseButton.find('i').attr('class', 'fas fa-pause'); // Thay đổi biểu tượng
+                    setupMediaSession();
+                } else {
+                    audio.pause();
+                    playerTrack.removeClass('active');
+                    albumArt.removeClass('active');
+                    playPauseButton.find('i').attr('class', 'fas fa-play'); // Thay đổi biểu tượng
+                }
+            }
+
+            
+        function showHover(event)
+        {
+                seekBarPos = sArea.offset(); 
+                seekT = event.clientX - seekBarPos.left;
+                seekLoc = audio.duration * (seekT / sArea.outerWidth());
+                
+                sHover.width(seekT);
+                
+                cM = seekLoc / 60;
+                
+                ctMinutes = Math.floor(cM);
+                ctSeconds = Math.floor(seekLoc - ctMinutes * 60);
+                
+                if( (ctMinutes < 0) || (ctSeconds < 0) )
+                        return;
+                
+        if( (ctMinutes < 0) || (ctSeconds < 0) )
+                        return;
+                
+                if(ctMinutes < 10)
+                        ctMinutes = '0'+ctMinutes;
+                if(ctSeconds < 10)
+                        ctSeconds = '0'+ctSeconds;
+        
+        if( isNaN(ctMinutes) || isNaN(ctSeconds) )
+            insTime.text('--:--');
+        else
+                    insTime.text(ctMinutes+':'+ctSeconds);
+            
+                insTime.css({'left':seekT,'margin-left':'-21px'}).fadeIn(0);
+                
+        }
+
+    function hideHover()
+        {
+        sHover.width(0);
+        insTime.text('00:00').css({'left':'0px','margin-left':'0px'}).fadeOut(0);                
+    }
+    
+    function playFromClickedPos()
+    {
+        audio.currentTime = seekLoc;
+                seekBar.width(seekT);
+                hideHover();
+    }
+
+    function updateCurrTime()
+        {
+        nTime = new Date();
+        nTime = nTime.getTime();
+
+        if( !tFlag )
+        {
+            tFlag = true;
+            trackTime.addClass('active');
+        }
+
+                curMinutes = Math.floor(audio.currentTime / 60);
+                curSeconds = Math.floor(audio.currentTime - curMinutes * 60);
+                
+                durMinutes = Math.floor(audio.duration / 60);
+                durSeconds = Math.floor(audio.duration - durMinutes * 60);
+                
+                playProgress = (audio.currentTime / audio.duration) * 100;
+                
+                if(curMinutes < 10)
+                        curMinutes = '0'+curMinutes;
+                if(curSeconds < 10)
+                        curSeconds = '0'+curSeconds;
+                
+                if(durMinutes < 10)
+                        durMinutes = '0'+durMinutes;
+                if(durSeconds < 10)
+                        durSeconds = '0'+durSeconds;
+        
+        if( isNaN(curMinutes) || isNaN(curSeconds) )
+            tProgress.text('00:00');
+        else
+                    tProgress.text(curMinutes+':'+curSeconds);
+        
+        if( isNaN(durMinutes) || isNaN(durSeconds) )
+            tTime.text('00:00');
+        else
+                    tTime.text(durMinutes+':'+durSeconds);
+        
+        if( isNaN(curMinutes) || isNaN(curSeconds) || isNaN(durMinutes) || isNaN(durSeconds) )
+            trackTime.removeClass('active');
+        else
+            trackTime.addClass('active');
+
+        
+                seekBar.width(playProgress+'%');
+                
+                if( playProgress == 100 )
+                {
+                        i.attr('class','fa fa-play');
+                        seekBar.width(0);
+            tProgress.text('00:00');
+            albumArt.removeClass('buffering').removeClass('active');
+            clearInterval(buffInterval);
+                }
+    }
+    
+
+
+ function selectTrack(flag) {
+    if (flag === 0 || flag === 1) {
+        currIndex++;
+    } else {
+        currIndex--;
+    }
+
+    // Kiểm tra nếu currIndex vượt qua số lượng bài hát
+    if (currIndex >= trackNames.length) {
+        currIndex = 0; // Quay lại bài đầu tiên
+    } else if (currIndex < 0) {
+        currIndex = trackNames.length - 1; // Nếu lùi lại bài trước đầu, quay về bài cuối cùng
+    }
+    
+    if (currIndex >= 0 && currIndex < trackNames.length) {
+        audio.src = trackUrl[currIndex];
+        artistName.text(artists[currIndex]);
+        trackName.text(trackNames[currIndex]);
+        albumArt.find('img').removeClass('active'); // Đảm bảo tất cả hình ảnh đều không hoạt động
+        albumArt.find('img#_' + (currIndex + 1)).addClass('active'); // Kích hoạt hình ảnh bìa tương ứng
+        setupMediaSession(); // Cập nhật metadata mỗi khi thay đổi bài hát
+
+        // Nếu đang ở bài cuối và quay về bài đầu tiên, phát ngay lập tức
+        if (currIndex === 0 && flag === 1) {
+            playPause(); // Phát bài đầu tiên khi bấm Next từ bài cuối
+        } 
+        // Nếu đang ở bất kỳ bài nào khác không phải bài đầu tiên, tiếp tục phát
+        else if (currIndex > 0) {
+            playPause();
+        }
+    } else {
+        currIndex = (flag === 0) ? 0 : trackNames.length - 1; // Quay lại nếu ra ngoài phạm vi
+    }
+
+
+   
+
+
+
+
+}
+
+
+    
+     function setupMediaSession() {
+                if ('mediaSession' in navigator) {
+                    navigator.mediaSession.metadata = new MediaMetadata({
+                        title: trackNames[currIndex],
+                        artist: artists[currIndex],
+                    
+                        artwork: [
+                            { src: 'https://raw.githubusercontent.com/mrbivt/simple-fit-music-2/refs/heads/main/' + (currIndex + 1) + '.jpg', sizes: '96x96', type: 'image/jpg' },
+                            { src: 'https://raw.githubusercontent.com/mrbivt/simple-fit-music-2/refs/heads/main/' + (currIndex + 1) + '.jpg', sizes: '128x128', type: 'image/jpg' },
+                            { src: 'https://raw.githubusercontent.com/mrbivt/simple-fit-music-2/refs/heads/main/' + (currIndex + 1) + '.jpg', sizes: '192x192', type: 'image/jpg' },
+                            { src: 'https://raw.githubusercontent.com/mrbivt/simple-fit-music-2/refs/heads/main/' + (currIndex + 1) + '.jpg', sizes: '256x256', type: 'image/jpg' }
+                        ]
+                    });
+
+                    navigator.mediaSession.setActionHandler('play', function() {
+                        audio.play();
+                    });
+
+                    navigator.mediaSession.setActionHandler('pause', function() {
+                        audio.pause();
+                    });
+
+                    navigator.mediaSession.setActionHandler('previoustrack', function() {
+                        selectTrack(-1);
+                    });
+
+                    navigator.mediaSession.setActionHandler('nexttrack', function() {
+                        selectTrack(1);
+                    });
+    }
+}
+
+    
+
+    function initPlayer()
+        {        
+        audio = new Audio();
+
+                selectTrack(0);
+                
+                audio.loop = false;
+                
+                playPauseButton.on('click',playPause);
+                
+                sArea.mousemove(function(event){ showHover(event); });
+                
+        sArea.mouseout(hideHover);
+        
+        sArea.on('click',playFromClickedPos);
+                
+        $(audio).on('timeupdate',updateCurrTime);
+
+        playPreviousTrackButton.on('click',function(){ selectTrack(-1);} );
+        playNextTrackButton.on('click',function(){ selectTrack(1);});
+        }
+    
+    
+    
+    
+    
+        initPlayer();
+});
+  </script>
+</body>
+</html>
